@@ -1,0 +1,21 @@
+diff-ignore
+tar-ignore = *.a
+tar-ignore = *.la
+tar-ignore = *.o
+tar-ignore = .*.sw?
+tar-ignore = *~
+tar-ignore = ,,*
+tar-ignore = .[#~]*
+tar-ignore = .deps
+tar-ignore = config.guess
+tar-ignore = config.sub
+tar-ignore = configure
+tar-ignore = Makefile
+tar-ignore = Makefile.in
+tar-ignore = .git
+tar-ignore = .gitattributes
+tar-ignore = .gitignore
+tar-ignore = ci
+tar-ignore = cov-int
+tar-ignore = analysis-results.tgz
+tar-ignore = debian/source/local-options
