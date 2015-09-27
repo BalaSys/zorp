@@ -1,3 +1,5 @@
+[![CircleCI Build Status](https://circleci.com/gh/Balasys/zorp/tree/7.0.7.svg?style=svg)](https://circleci.com/gh/Balasys/zorp/tree/7.0.7)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/Balasys-zorp/badge.svg)](https://scan.coverity.com/projects/Balasys-zorp)
 
 This is Zorp, welcome.
 ----------------------
