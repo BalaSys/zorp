@@ -62,3 +62,21 @@ exclude:
 sass:
     sass_dir: assets/css/_sass
     style: :compressed
+
+# SEO settings
+
+title: Zorp GPL community site
+twitter:
+    username: zorpgpl
+social:
+    type: organization
+    name: Zorp GPL
+    links:
+        - https://twitter.com/zorpgpl
+        - https://facebook.com/zorpgpl
+        - https://plus.google.com/communities/116425690079845398951
+        - https://www.linkedin.com/groups/Zorp-GPL-4166962
+        - https://www.openhub.net/p/zorpgpl
+
+gems:
+  - jekyll-seo-tag
