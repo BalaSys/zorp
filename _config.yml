@@ -80,3 +80,4 @@ social:
 
 gems:
   - jekyll-seo-tag
+  - jekyll-feed
