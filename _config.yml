@@ -22,6 +22,7 @@ harmony:
   #  and Maheshika Lakmali. Sourced on Github - 
   #  https://github.com/gayanvirajith/harmony
   basetheme: theme-base-01 # pre defined thmes are darken, blue-water, redish.
+  logo: assets/zorp-logo.png
   author: # Author details
     name: Szilárd Pfeiffer
     email: coroner@pfeifferszilard.hu
