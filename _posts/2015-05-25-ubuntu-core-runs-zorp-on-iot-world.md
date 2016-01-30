@@ -6,12 +6,7 @@ author:      Balasys Development Team
 image:       https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Logo-ubuntu_no%28r%29-black_orange-hex.svg/320px-Logo-ubuntu_no%28r%29-black_orange-hex.svg.png
 categories:
   - news
-tags:
-  - ubuntu
-  - Snappy
-  - Ubuntu Core
-  - iot
-  - IoT World
+
 ---
 
 > There were lots of interesting Snappy Apps running on various machines, e.g.
