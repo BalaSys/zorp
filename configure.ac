@@ -120,10 +120,6 @@ AC_DISABLE_STATIC
 AC_LANG(C++)
 
 AM_PROG_LIBTOOL
-AC_PATH_PROG(GPERF, gperf)
-if test "x$GPERF" = "x"; then
-	AC_ERROR(No gperf found)
-fi
 
 dnl ***************************************************************************
 dnl Checks for header files.
