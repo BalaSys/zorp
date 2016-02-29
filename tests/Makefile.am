@@ -1,1 +1,1 @@
-SUBDIRS = python unit tools zorpctl
+SUBDIRS = python unit zorpctl
