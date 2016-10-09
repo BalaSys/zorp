@@ -8,7 +8,7 @@ DIST_SUBDIRS += . messages tests
 pkgdatadir = @ZORP_PYTHON_DIR@
 pkglibdir = @libdir@/zorp
 LIBS = @MODULES_LIBS@
-CPPFLAGS = @MODULES_CPPFLAGS@
+AM_CPPFLAGS = @MODULES_CPPFLAGS@
 AM_CFLAGS = @CFLAGS@ -W
 
 pkgdata_DATA = Http.py

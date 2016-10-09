@@ -1,6 +1,6 @@
 LIBS = @ZORP_LIBS@ @MODULES_LIBS@ @DEPS_LIBS@
 LDADD = -lboost_unit_test_framework
-CPPFLAGS = @MODULES_CPPFLAGS@ -DBOOST_TEST_DYN_LINK=1
+AM_CPPFLAGS = @MODULES_CPPFLAGS@ -DBOOST_TEST_DYN_LINK=1
 
 check_PROGRAMS = test_pystruct test_szig test_proxy
 
