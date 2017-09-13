@@ -1,6 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = lib libproxy modules zorp pylib doc debian zorpctl scripts tests munin_plugins nagios_plugins zorpblgen
+SUBDIRS = lib libproxy modules zorp pylib doc zorpctl scripts tests munin_plugins nagios_plugins zorpblgen
 DIST_SUBDIRS = $(SUBDIRS)
 
 pkgconfigdir = $(libdir)/pkgconfig

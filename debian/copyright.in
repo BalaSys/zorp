@@ -1,7 +1,0 @@
-Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: zorp-core
-Upstream-Contact: BalaSys Development Team <devel@balasys.hu>
-
-Files: *
-Copyright: 2000-2015 BalaBit IT Security, 2015-2017 BalaSys IT Security
-License: GPL-2 with OpenSSL exception

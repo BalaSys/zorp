@@ -1,5 +1,0 @@
-@PACKAGE@ (@VERSION@) @RELEASE_TAG@; urgency=low
-
-  * New upstream version.
-
- -- BalaSys Development Team <devel@balasys.hu>  @CURRDATE@
