@@ -1,4 +1,0 @@
-#!/usr/bin/make -f
-
-%:
-	dh $@ --with autoreconf,python2 --parallel --with systemd

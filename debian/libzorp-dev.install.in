@@ -1,8 +1,0 @@
-usr/include/zorp
-usr/lib/*/libzorp.la
-usr/lib/*/libzorp.so
-usr/lib/*/pkgconfig/libzorp.pc
-usr/lib/*/libzorpproxy.la
-usr/lib/*/libzorpproxy.so
-usr/lib/*/pkgconfig/libzorpproxy.pc
-usr/share/zorp/moduledist.conf
