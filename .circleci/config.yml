@@ -1,0 +1,28 @@
+version: 2
+jobs:
+  prepare_build_test:
+    docker:
+      - image: balasys/zorpgpl-circleci:7.0
+    environment:
+      - PACKAGE: zorp
+      - OBS_PROJECT_URL: security:/Zorp:/7:/0:/7
+      - OBS_PROJECT_DIR: security:Zorp:7:0:7/zorp
+      - GIT_SSH_COMMAND: ssh -o StrictHostKeyChecking=no
+    working_directory: ~/zorp
+    steps:
+      - run: git init
+      - run: git remote add origin $CIRCLE_REPOSITORY_URL
+      - run: git fetch origin
+      - run: git checkout $CIRCLE_BRANCH
+      - run: git submodule init
+      - run: git submodule update --init
+      - run: source ci/obs_before_install.sh
+      - run: source ci/build.sh
+      - run: source ci/obs_prepare.sh
+      - run: source ci/obs_commit.sh
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - prepare_build_test

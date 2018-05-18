@@ -1,0 +1,4 @@
+[submodule "ci"]
+	path = ci
+	url = git@github.com:Balasys/ci-scripts.git
+	branch = 7.0
