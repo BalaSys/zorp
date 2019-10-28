@@ -11,6 +11,8 @@ categories:
 Improvements
 ------------
 
+* Ubuntu 18.04 support
+
 ### Proxies
 
 * The Zorp HTTP proxy can now bridge [Basic access authentication](https://en.wikipedia.org/wiki/Basic_access_authentication)
