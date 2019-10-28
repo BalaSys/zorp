@@ -61,7 +61,7 @@ private:
   static X509_OBJECT *get_cert_or_crl_object_from_store(X509_STORE *ctx, const X509_OBJECTType &stmp);
 
   directories_type directories;
-  std::map<std::filesystem::path, std::chrono::system_clock::time_point> last_modification_cache;
+  std::map<std::filesystem::path, std::filesystem::file_time_type> last_modification_cache;
   X509_LOOKUP_METHOD *lookup_method = nullptr;
 };
 
