@@ -20,9 +20,18 @@
 ## 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ##
 ############################################################################
+#
+#%# family=auto
+#%# capabilities=autoconf
 
-from zorpctl import Instances
+try:
+    from zorpctl import Instances
+    have_zorpctl = True
+except ImportError:
+    have_zorpctl = False
 
+import subprocess
+import sys
 
 def print_config():
     print 'graph_title Zorp threads'
@@ -40,10 +49,30 @@ def print_values():
         if process_status.threads > 0:
             print process_status.name + ".value " + str(process_status.threads)
 
+def detect_zorp():
+    if not have_zorpctl:
+        return "No zorpctl library found"
+    try:
+        zorpctl_status = subprocess.call("zorpctl --status")
+        if zorpctl_status != 0:
+            return "zorpctl return with an error"
+    except OSError:
+            return "No zorpctl found"
+    return ""
+
 
 if __name__ == '__main__':
-    import sys
-    if len(sys.argv) > 1 and sys.argv[1] == 'config':
-        print_config()
+    if len(sys.argv) > 1 and sys.argv[1] == 'autoconf':
+        excuse = detect_zorp()
+        if excuse == "":
+            print("yes")
+        else:
+            print("no ({})".format(excuse))
+    elif have_zorpctl:
+        if len(sys.argv) > 1 and sys.argv[1] == 'config':
+            print_config()
+        else:
+            print_values()
     else:
-        print_values()
+        print("No zoprctl found, the plugin cannot be run")
+        sys.exit(1)
