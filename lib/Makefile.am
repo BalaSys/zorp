@@ -28,9 +28,13 @@ libzorp_la_SOURCES = \
 	proxyssl.cc pyx509.cc proxysslhostiface.cc \
 	certchain.cc pyx509chain.cc \
 	session.cc \
-	pyencryption.cc x509lookup_crl_reloader.cc
+	pyencryption.cc x509lookup_crl_reloader.cc \
+	urlfilter.cc
 
 if ENABLE_KZORP
 libzorp_la_SOURCES += kzorp.cc
 endif
 
+
+libzorp_la_SOURCES += \
+	urlfilter_blacklist.cc

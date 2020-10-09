@@ -37,6 +37,8 @@
         <title>SSL parameter constants</title>
         <inline type="enum" target="enum.ssl.verify"/>
         <inline type="enum" target="enum.ssl.ciphers"/>
+        <inline type="enum" target="enum.ssl.ciphers_tlsv1_3"/>
+        <inline type="enum" target="enum.ssl.shared_groups"/>
         <inline type="enum" target="enum.ssl.hso"/>
         <inline type="enum" target="enum.ssl.client_connection_security"/>
         <inline type="enum" target="enum.ssl.server_connection_security"/>
@@ -84,6 +86,20 @@
         <item><name>SSL_CIPHERS_LOW</name></item>
         <item><name>SSL_CIPHERS_ALL</name></item>
         <item><name>SSL_CIPHERS_CUSTOM</name></item>
+      </enum>
+     <enum maturity="stable" id="enum.ssl.ciphers_tlsv1_3">
+        <description>
+          Constants for TLSv1.3 cipher selection
+        </description>
+        <item><name>TLSV1_3_CIPHERS_DEFAULT</name></item>
+        <item><name>TLSV1_3_CIPHERS_CUSTOM</name></item>
+      </enum>
+     <enum maturity="stable" id="enum.ssl.shared_groups">
+        <description>
+          Constants for shared group selection
+        </description>
+        <item><name>TLS_SHARED_GROUPS_DEFAULT</name></item>
+        <item><name>TLS_SHARED_GROUPS_CUSTOM</name></item>
       </enum>
       <enum maturity="stable" id="enum.ssl.hso">
         <description>
@@ -247,6 +263,48 @@
           </description>
         </tuple>
       </actiontuple>
+      <actiontuple maturity="stable" id="action.ssl.ciphers_tlsv1_3" action_enum="enum.ssl.ciphers_tlsv1_3">
+        <description>
+          Action codes for for TLSv1.3 cipher selection
+        </description>
+        <tuple action="TLSV1_3_CIPHERS_DEFAULT" display_name="Default ciphers">
+          <args/>
+          <description>
+            <para>
+              Permit the use of OpenSSL's default supported ciphers.
+            </para>
+          </description>
+        </tuple>
+        <tuple action="TLSV1_3_CIPHERS_CUSTOM" display_name="Custom ciphers">
+          <args>
+            <string display_name="Custom value"/>
+          </args>
+          <description>
+            Permit only the use of ciphers which defined in value.
+          </description>
+        </tuple>
+      </actiontuple>
+      <actiontuple maturity="stable" id="action.ssl.shared_groups" action_enum="enum.ssl.shared_groups">
+        <description>
+          Action codes for shared groups selection
+        </description>
+        <tuple action="TLS_SHARED_GROUPS_DEFAULT" display_name="Default shared groups">
+          <args/>
+          <description>
+            <para>
+              Permit the use of OpenSSL's default shared groups.
+            </para>
+          </description>
+        </tuple>
+        <tuple action="TLS_SHARED_GROUPS_CUSTOM" display_name="Custom shared groups">
+          <args>
+            <string display_name="Custom value"/>
+          </args>
+          <description>
+            Permit only the use of shared groups which defined in value.
+          </description>
+        </tuple>
+      </actiontuple>
     </actiontuples>
   </metainfo>
 </module>
@@ -281,6 +339,12 @@ SSL_CIPHERS_MEDIUM      = "HIGH:MEDIUM:!aNULL:@STRENGTH"
 SSL_CIPHERS_LOW         = "HIGH:MEDIUM:LOW:EXPORT:!aNULL:@STRENGTH"
 
 SSL_CIPHERS_CUSTOM      = ""
+
+TLSV1_3_CIPHERS_DEFAULT = "TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256"
+TLSV1_3_CIPHERS_CUSTOM  = ""
+
+TLS_SHARED_GROUPS_DEFAULT = "X25519:X448:P-521:P-384:P-256"
+TLS_SHARED_GROUPS_CUSTOM  = ""
 
 # connection security settings
 SSL_NONE                = 0
@@ -472,6 +536,36 @@ class SSLOptions(object):
             For details, see <xref linkend="action.ssl.ciphers"/>.</description>
           </attribute>
           <attribute>
+            <name>ciphers_tlsv1_3</name>
+            <type>
+              <hash>
+                <key>
+                  <string display_name="TLSv1.3 cipher type"/>
+                </key>
+                <value>
+                  <link id="action.ssl.ciphers_tlsv1_3"/>
+                </value>
+              </hash>
+            </type>
+            <description>Specifies the allowed ciphers for TLSv1.3 connections.
+            For details, see <xref linkend="action.ssl.ciphers_tlsv1_3"/>.</description>
+          </attribute>
+          <attribute>
+            <name>shared_groups</name>
+            <type>
+              <hash>
+                <key>
+                  <string display_name="TLS shared group type"/>
+                </key>
+                <value>
+                  <link id="action.ssl.shared_groups"/>
+                </value>
+              </hash>
+            </type>
+            <description>Specifies the allowed shared groups.
+            For details, see <xref linkend="action.ssl.shared_groups"/>.</description>
+          </attribute>
+          <attribute>
             <name>disable_tlsv1</name>
             <type>
               <boolean/>
@@ -496,20 +590,29 @@ class SSLOptions(object):
             <description>Do not allow using TLSv1.2 in the connection.</description>
           </attribute>
           <attribute>
+            <name>disable_tlsv1_3</name>
+            <type>
+              <boolean/>
+            </type>
+            <default>TRUE</default>
+            <description>Do not allow using TLSv1.3 in the connection.</description>
+          </attribute>
+          <attribute>
             <name>disable_compression</name>
             <type>
               <boolean/>
             </type>
             <default>FALSE</default>
-            <description>Set this to TRUE to disable support for SSL/TLS compression.</description>
+            <description>Set this to TRUE to disable support for SSL/TLS compression even if it is supported. Please be mind that this option is ignored in TLSv1.3 as it does not support compression.</description>
           </attribute>
         </attributes>
       </metainfo>
     </class>
     """
 
-    def __init__(self, cipher=SSL_CIPHERS_HIGH, timeout=300,
-                       disable_tlsv1=False, disable_tlsv1_1=False, disable_tlsv1_2=False,
+    def __init__(self, cipher=SSL_CIPHERS_HIGH, ciphers_tlsv1_3=TLSV1_3_CIPHERS_DEFAULT,
+                       shared_groups=TLS_SHARED_GROUPS_DEFAULT, timeout=300,
+                       disable_tlsv1=False, disable_tlsv1_1=False, disable_tlsv1_2=False, disable_tlsv1_3=True,
                        disable_compression=False):
         """
         <method maturity="stable">
@@ -530,6 +633,22 @@ class SSLOptions(object):
                 </type>
                 <description>Specifies the allowed ciphers.
                 For details, see <xref linkend="action.ssl.ciphers"/>.</description>
+              </argument>
+              <argument maturity="stable">
+                <name>ciphers_tlsv1_3</name>
+                <type>
+                  <link id="action.ssl.ciphers_tlsv1_3"/>
+                </type>
+                <description>Specifies the allowed ciphers for TLSv1.3 connections.
+                For details, see <xref linkend="action.ssl.ciphers_tlsv1_3"/>.</description>
+              </argument>
+              <argument maturity="stable">
+                <name>shared_groups</name>
+                <type>
+                  <link id="action.ssl.shared_groups"/>
+                </type>
+                <description>Specifies the allowed shared groups.
+                For details, see <xref linkend="action.ssl.shared_groups"/>.</description>
               </argument>
               <argument maturity="stable">
                 <name>timeout</name>
@@ -564,12 +683,20 @@ class SSLOptions(object):
                 <description>Do not allow using TLSv1.2 in the connection.</description>
               </argument>
               <argument maturity="stable">
+                <name>disable_tlsv1_3</name>
+                <type>
+                  <boolean/>
+                </type>
+                <default>TRUE</default>
+                <description>Do not allow using TLSv1.3 in the connection.</description>
+              </argument>
+              <argument maturity="stable">
                 <name>disable_compression</name>
                 <type>
                   <boolean/>
                 </type>
                 <default>FALSE</default>
-                <description>Set this to TRUE to disable support for SSL/TLS compression.</description>
+                <description>Set this to TRUE to disable support for SSL/TLS compression even if it is supported. Please be mind that this option is ignored in TLSv1.3 as it does not support compression.</description>
               </argument>
             </arguments>
           </metainfo>
@@ -577,10 +704,13 @@ class SSLOptions(object):
         """
 
         self.cipher = cipher[1] if isinstance(cipher, tuple) else cipher
+        self.ciphers_tlsv1_3 = ciphers_tlsv1_3[1] if isinstance(ciphers_tlsv1_3, tuple) else ciphers_tlsv1_3
+        self.shared_groups = shared_groups[1] if isinstance(shared_groups, tuple) else shared_groups
         self.timeout = timeout
         self.disable_tlsv1 = disable_tlsv1
         self.disable_tlsv1_1 = disable_tlsv1_1
         self.disable_tlsv1_2 = disable_tlsv1_2
+        self.disable_tlsv1_3 = disable_tlsv1_3
         self.disable_compression = disable_compression
 
     def setup(self, encryption):
@@ -610,6 +740,22 @@ class ClientSSLOptions(SSLOptions):
             </type>
             <description>Specifies the allowed ciphers.
             For details, see <xref linkend="action.ssl.ciphers"/>.</description>
+          </attribute>
+          <attribute>
+            <name>cipher</name>
+            <type>
+              <link id="action.ssl.ciphers_tlsv1_3"/>
+            </type>
+            <description>Specifies the allowed ciphers for TLSv1.3 connections.
+            For details, see <xref linkend="action.ssl.ciphers_tlsv1_3"/>.</description>
+          </attribute>
+          <attribute>
+            <name>shared_groups</name>
+            <type>
+              <link id="action.ssl.shared_groups"/>
+            </type>
+            <description>Specifies the allowed shared groups.
+            For details, see <xref linkend="action.ssl.shared_groups"/>.</description>
           </attribute>
           <attribute>
             <name>cipher_server_preference</name>
@@ -644,12 +790,20 @@ class ClientSSLOptions(SSLOptions):
             <description>Do not allow using TLSv1.2 in the connection.</description>
           </attribute>
           <attribute>
+            <name>disable_tlsv1_3</name>
+            <type>
+              <boolean/>
+            </type>
+            <default>TRUE</default>
+            <description>Do not allow using TLSv1.3 in the connection.</description>
+          </attribute>
+          <attribute>
             <name>disable_compression</name>
             <type>
               <boolean/>
             </type>
             <default>FALSE</default>
-            <description>Set this to TRUE to disable support for SSL/TLS compression.</description>
+            <description>Set this to TRUE to disable support for SSL/TLS compression even if it is supported. Please be mind that this option is ignored in TLSv1.3 as it does not support compression.</description>
           </attribute>
           <attribute>
             <name>dh_params</name>
@@ -658,7 +812,17 @@ class ClientSSLOptions(SSLOptions):
             </type>
             <default>None</default>
             <description>
-             The DH parameter used by ephemeral DH key generarion.
+             The DH parameter used by ephemeral DH key generarion. Please be mind that this option is ignored in TLSv1.3 as it does not support custom DH parameters.
+            </description>
+          </attribute>
+          <attribute>
+            <name>disable_send_root_ca</name>
+            <type>
+              <boolean/>
+            </type>
+            <default>False</default>
+            <description>
+             Inhibit sending Root CA to client, even if present in local certificate chain.
             </description>
           </attribute>
         </attributes>
@@ -666,9 +830,11 @@ class ClientSSLOptions(SSLOptions):
     </class>
     """
 
-    def __init__(self, method=SSL_METHOD_ALL, cipher=SSL_CIPHERS_HIGH, cipher_server_preference=False, timeout=300,
-                       disable_sslv2=True, disable_sslv3=True, disable_tlsv1=False, disable_tlsv1_1=False, disable_tlsv1_2=False,
-                       disable_compression=False, dh_params=None, disable_renegotiation=True):
+    def __init__(self, method=SSL_METHOD_ALL, cipher=SSL_CIPHERS_HIGH, ciphers_tlsv1_3=TLSV1_3_CIPHERS_DEFAULT,
+                       shared_groups=TLS_SHARED_GROUPS_DEFAULT, cipher_server_preference=False, timeout=300,
+                       disable_sslv2=True, disable_sslv3=True,
+                       disable_tlsv1=False, disable_tlsv1_1=False, disable_tlsv1_2=False, disable_tlsv1_3=True,
+                       disable_compression=False, dh_params=None, disable_renegotiation=True, disable_send_root_ca=False):
         """
         <method maturity="stable">
           <summary>
@@ -688,6 +854,22 @@ class ClientSSLOptions(SSLOptions):
                 </type>
                 <description>Specifies the allowed ciphers.
                 For details, see <xref linkend="action.ssl.ciphers"/>.</description>
+              </argument>
+              <argument maturity="stable">
+                <name>ciphers_tlsv1_3</name>
+                <type>
+                  <link id="action.ssl.ciphers_tlsv1_3"/>
+                </type>
+                <description>Specifies the allowed ciphers for TLSv1.3 connections.
+                For details, see <xref linkend="action.ssl.ciphers_tlsv1_3"/>.</description>
+              </argument>
+              <argument maturity="stable">
+                <name>shared_groups</name>
+                <type>
+                  <link id="action.ssl.shared_groups"/>
+                </type>
+                <description>Specifies the allowed shared groups.
+                For details, see <xref linkend="action.ssl.shared_groups"/>.</description>
               </argument>
               <argument maturity="stable">
                 <name>cipher_server_preference</name>
@@ -730,12 +912,20 @@ class ClientSSLOptions(SSLOptions):
                 <description>Do not allow using TLSv1.2 in the connection.</description>
               </argument>
               <argument maturity="stable">
+                <name>disable_tlsv1_3</name>
+                <type>
+                  <boolean/>
+                </type>
+                <default>TRUE</default>
+                <description>Do not allow using TLSv1.3 in the connection.</description>
+              </argument>
+              <argument maturity="stable">
                 <name>disable_compression</name>
                 <type>
                   <boolean/>
                 </type>
                 <default>FALSE</default>
-                <description>Set this to TRUE to disable support for SSL/TLS compression.</description>
+                <description>Set this to TRUE to disable support for SSL/TLS compression even if it is supported. Please be mind that this option is ignored in TLSv1.3 as it does not support compression.</description>
               </argument>
               <argument>
                 <name>dh_param_file_path</name>
@@ -744,7 +934,7 @@ class ClientSSLOptions(SSLOptions):
                 </type>
                 <default>None</default>
                 <description>
-                 The path and filename to the DH parameter file. The DH parameter file must be in PEM format.
+                 The path and filename to the DH parameter file. The DH parameter file must be in PEM format. Please be mind that this option is ignored in TLSv1.3 as it does not support custom DH parameters.
                 </description>
               </argument>
               <argument maturity="stable">
@@ -753,15 +943,23 @@ class ClientSSLOptions(SSLOptions):
                   <boolean/>
                 </type>
                 <default>TRUE</default>
-                <description>Set this to TRUE to disable client initiated renegotiation.</description>
+                <description>Set this to TRUE to disable client initiated renegotiation. Please be mind that this option is ignored in TLSv1.3 as it does not support renegotiation.</description>
+              </argument>
+              <argument maturity="stable">
+                <name>disable_send_root_ca</name>
+                <type>
+                  <boolean/>
+                </type>
+                <default>FALSE</default>
+                <description>Set this to TRUE to inhibit sending root ca to client, even if present in local chain.</description>
               </argument>
             </arguments>
           </metainfo>
         </method>
         """
 
-        super(ClientSSLOptions, self).__init__(cipher, timeout,
-                                               disable_tlsv1, disable_tlsv1_1, disable_tlsv1_2,
+        super(ClientSSLOptions, self).__init__(cipher, ciphers_tlsv1_3, shared_groups, timeout,
+                                               disable_tlsv1, disable_tlsv1_1, disable_tlsv1_2, disable_tlsv1_3,
                                                disable_compression)
         self.cipher_server_preference = cipher_server_preference
         if dh_params is None:
@@ -773,6 +971,7 @@ class ClientSSLOptions(SSLOptions):
         else:
             raise TypeError, "Type of dh_params must be string or DHParam"
         self.disable_renegotiation = disable_renegotiation
+        self.disable_send_root_ca = disable_send_root_ca
 
     def setup(self, encryption):
         """
@@ -782,11 +981,15 @@ class ClientSSLOptions(SSLOptions):
         encryption.settings.client_disable_proto_tlsv1 = self.disable_tlsv1
         encryption.settings.client_disable_proto_tlsv1_1 = self.disable_tlsv1_1
         encryption.settings.client_disable_proto_tlsv1_2 = self.disable_tlsv1_2
+        encryption.settings.client_disable_proto_tlsv1_3 = self.disable_tlsv1_3
         encryption.settings.client_disable_compression = self.disable_compression
         encryption.settings.client_ssl_cipher = self.cipher
+        encryption.settings.client_ciphers_tlsv1_3 = self.ciphers_tlsv1_3
+        encryption.settings.client_shared_groups = self.shared_groups
         encryption.settings.cipher_server_preference = self.cipher_server_preference
         encryption.settings.dh_params = self.dh_params
         encryption.settings.disable_renegotiation = self.disable_renegotiation
+        encryption.settings.client_disable_send_root_ca = self.disable_send_root_ca
 
 class ServerSSLOptions(SSLOptions):
     """
@@ -809,6 +1012,22 @@ class ServerSSLOptions(SSLOptions):
             </type>
             <description>Specifies the allowed ciphers.
             For details, see <xref linkend="action.ssl.ciphers"/>.</description>
+          </attribute>
+          <attribute>
+            <name>ciphers_tlsv1_3</name>
+            <type>
+              <link id="action.ssl.ciphers_tlsv1_3"/>
+            </type>
+            <description>Specifies the allowed ciphers for TLSv1.3 connections.
+            For details, see <xref linkend="action.ssl.ciphers_tlsv1_3"/>.</description>
+          </attribute>
+          <attribute>
+            <name>shared_groups</name>
+            <type>
+              <link id="action.ssl.shared_groups"/>
+            </type>
+            <description>Specifies the allowed shared groups.
+            For details, see <xref linkend="action.ssl.shared_groups"/>.</description>
           </attribute>
           <attribute>
             <name>disable_tlsv1</name>
@@ -835,20 +1054,30 @@ class ServerSSLOptions(SSLOptions):
             <description>Do not allow using TLSv1.2 in the connection.</description>
           </attribute>
           <attribute>
+            <name>disable_tlsv1_3</name>
+            <type>
+              <boolean/>
+            </type>
+            <default>TRUE</default>
+            <description>Do not allow using TLSv1.3 in the connection.</description>
+          </attribute>
+          <attribute>
             <name>disable_compression</name>
             <type>
               <boolean/>
             </type>
             <default>FALSE</default>
-            <description>Set this to TRUE to disable support for SSL/TLS compression.</description>
+            <description>Set this to TRUE to disable support for SSL/TLS compression even if it is supported. Please be mind that this option is ignored in TLSv1.3 as it does not support compression.</description>
           </attribute>
         </attributes>
       </metainfo>
     </class>
     """
 
-    def __init__(self, method=SSL_METHOD_ALL, cipher=SSL_CIPHERS_HIGH, timeout=300,
-                       disable_sslv2=True, disable_sslv3=True, disable_tlsv1=False, disable_tlsv1_1=False, disable_tlsv1_2=False,
+    def __init__(self, method=SSL_METHOD_ALL, cipher=SSL_CIPHERS_HIGH, ciphers_tlsv1_3=TLSV1_3_CIPHERS_DEFAULT,
+                       shared_groups=TLS_SHARED_GROUPS_DEFAULT, timeout=300,
+                       disable_sslv2=True, disable_sslv3=True,
+                       disable_tlsv1=False, disable_tlsv1_1=False, disable_tlsv1_2=False, disable_tlsv1_3=True,
                        disable_compression=False):
         """
         <method maturity="stable">
@@ -869,6 +1098,22 @@ class ServerSSLOptions(SSLOptions):
                 </type>
                 <description>Specifies the allowed ciphers.
                 For details, see <xref linkend="action.ssl.ciphers"/>.</description>
+              </argument>
+              <argument maturity="stable">
+                <name>ciphers_tlsv1_3</name>
+                <type>
+                  <link id="action.ssl.ciphers_tlsv1_3"/>
+                </type>
+                <description>Specifies the allowed ciphers for TLSv1.3 connections.
+                For details, see <xref linkend="action.ssl.ciphers_tlsv1_3"/>.</description>
+              </argument>
+              <argument maturity="stable">
+                <name>shared_groups</name>
+                <type>
+                  <link id="action.ssl.shared_groups"/>
+                </type>
+                <description>Specifies the allowed shared groups.
+                For details, see <xref linkend="action.ssl.shared_groups"/>.</description>
               </argument>
               <argument maturity="stable">
                 <name>timeout</name>
@@ -903,20 +1148,28 @@ class ServerSSLOptions(SSLOptions):
                 <description>Do not allow using TLSv1.2 in the connection.</description>
               </argument>
               <argument maturity="stable">
+                <name>disable_tlsv1_3</name>
+                <type>
+                  <boolean/>
+                </type>
+                <default>TRUE</default>
+                <description>Do not allow using TLSv1.3 in the connection.</description>
+              </argument>
+              <argument maturity="stable">
                 <name>disable_compression</name>
                 <type>
                   <boolean/>
                 </type>
                 <default>FALSE</default>
-                <description>Set this to TRUE to disable support for SSL/TLS compression.</description>
+                <description>Set this to TRUE to disable support for SSL/TLS compression even if it is supported. Please be mind that this option is ignored in TLSv1.3 as it does not support compression.</description>
               </argument>
             </arguments>
           </metainfo>
         </method>
         """
 
-        super(ServerSSLOptions, self).__init__(cipher, timeout,
-                                               disable_tlsv1, disable_tlsv1_1, disable_tlsv1_2,
+        super(ServerSSLOptions, self).__init__(cipher, ciphers_tlsv1_3, shared_groups, timeout,
+                                               disable_tlsv1, disable_tlsv1_1, disable_tlsv1_2, disable_tlsv1_3,
                                                disable_compression)
 
     def setup(self, encryption):
@@ -927,8 +1180,11 @@ class ServerSSLOptions(SSLOptions):
         encryption.settings.server_disable_proto_tlsv1 = self.disable_tlsv1
         encryption.settings.server_disable_proto_tlsv1_1 = self.disable_tlsv1_1
         encryption.settings.server_disable_proto_tlsv1_2 = self.disable_tlsv1_2
+        encryption.settings.server_disable_proto_tlsv1_3 = self.disable_tlsv1_3
         encryption.settings.server_disable_compression = self.disable_compression
         encryption.settings.server_ssl_cipher = self.cipher
+        encryption.settings.server_ciphers_tlsv1_3 = self.ciphers_tlsv1_3
+        encryption.settings.server_shared_groups = self.shared_groups
 
 class AbstractVerifier(object):
     """

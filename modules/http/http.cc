@@ -40,7 +40,6 @@
 #include <zorp/proxy/errorloader.h>
 
 #include <ctype.h>
-#include <sys/socket.h>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -48,7 +47,8 @@
 #include <functional>
 #include <algorithm>
 
-#include <netdb.h>
+#include "http_url_filter.h"
+
 static GHashTable *auth_hash = NULL;
 G_LOCK_DEFINE_STATIC(auth_mutex);
 
@@ -200,6 +200,14 @@ http_config_set_defaults(HttpProxy *self)
   self->auth_by_form = FALSE;
   self->login_page_path = g_string_sized_new(0);
 
+  self->enable_url_filter = FALSE;
+  self->enable_url_filter_dns = FALSE;
+
+  z_policy_lock(self->super.thread);
+  self->url_filter_uncategorized_action = z_policy_var_build("(I)", HTTP_URL_ACCEPT);
+  z_policy_unlock(self->super.thread);
+
+  self->url_category = g_hash_table_new(g_str_hash, g_str_equal);
 
   self->request_categories = NULL;
 
@@ -902,6 +910,22 @@ http_register_vars(HttpProxy *self)
                   Z_VAR_TYPE_INT | Z_VAR_GET | Z_VAR_SET_CONFIG | Z_VAR_GET_CONFIG,
                   &self->auth_cache_update);
 
+  z_proxy_var_new(&self->super, "enable_url_filter",
+                  Z_VAR_TYPE_INT | Z_VAR_GET | Z_VAR_SET_CONFIG | Z_VAR_GET_CONFIG,
+                  &self->enable_url_filter);
+
+  z_proxy_var_new(&self->super, "enable_url_filter_dns",
+                  Z_VAR_TYPE_INT | Z_VAR_GET | Z_VAR_SET_CONFIG | Z_VAR_GET_CONFIG,
+                  &self->enable_url_filter_dns);
+
+  z_proxy_var_new(&self->super, "url_filter_uncategorized_action",
+                  Z_VAR_TYPE_OBJECT | Z_VAR_GET | Z_VAR_SET_CONFIG | Z_VAR_GET_CONFIG,
+                  &self->url_filter_uncategorized_action);
+
+  /* hash indexed by url category */
+  z_proxy_var_new(&self->super, "url_category",
+                  Z_VAR_TYPE_HASH | Z_VAR_GET | Z_VAR_GET_CONFIG,
+                  self->url_category);
 
   z_proxy_var_new(&self->super, "request_categories",
                   Z_VAR_TYPE_OBJECT | Z_VAR_GET,
@@ -951,7 +975,8 @@ http_error_message(HttpProxy *self, gint response_code, guint message_code, GStr
       "servertimeout.html",
       "badcontent.html",
       "ftperror.html",
-      "redirect.html"
+      "redirect.html",
+      "internal.html"
     };
   gchar response[256];
   gchar *error_msg;
@@ -1904,7 +1929,6 @@ http_get_default_port_for_protocol(HttpProxy *self)
     return self->default_ftp_port;
 }
 
-
 static guint
 http_get_request_type(HttpProxy *self)
 {
@@ -2400,6 +2424,9 @@ http_process_request(HttpProxy *self)
       z_proxy_log(self, HTTP_ERROR, 1, "Error parsing URL; url='%s', reason='%s'", self->request_url->str, reason);
       z_proxy_return(self, FALSE);
     }
+
+  if (!http_url_filter(self, self->request_url->str, self->request_url_parts))
+    return false;
 
   self->remote_port = self->request_url_parts.port;
 
@@ -3427,6 +3454,17 @@ http_handle_connect(HttpProxy *self)
       z_proxy_return(self, FALSE);
     }
 
+  HttpURL url_parts;
+  http_init_url(&url_parts);
+  g_string_assign_len(url_parts.host, remote_host, remote_host_len);
+  url_parts.port = remote_port;
+  if (!http_url_filter(self, self->request_url->str, url_parts))
+    {
+      http_destroy_url(&url_parts);
+      return false;
+    }
+  http_destroy_url(&url_parts);
+
   if (http_parent_proxy_enabled(self))
     {
       g_string_assign(self->remote_server, self->parent_proxy->str);
@@ -3926,6 +3964,9 @@ gint
 zorp_module_init(void)
 {
   http_proto_init();
+
+  http_url_filter_init();
+
   auth_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, http_auth_destroy);
   z_registry_add("http", ZR_PROXY, &http_module_funcs);
   return TRUE;

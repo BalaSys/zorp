@@ -28,7 +28,7 @@ Section: net
 Architecture: any
 Depends:
     ${shlibs:Depends},
-    libzorp7.0-4 (= ${binary:Version}),
+    libzorp7.0-5 (= ${binary:Version}),
     python-dnspython,
     python-enum34,
     python-openssl,
@@ -58,7 +58,7 @@ Description: An advanced protocol analyzing firewall
  of the attacks do not cross a Zorp based firewall even if the given service
  is permitted.
 
-Package: libzorp7.0-4
+Package: libzorp7.0-5
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
@@ -76,7 +76,7 @@ Architecture: any
 Depends:
     ${misc:Depends},
     libpython2.7-dev,
-    libzorp7.0-4 (= ${binary:Version}),
+    libzorp7.0-5 (= ${binary:Version}),
     libzorpll7.0-dev
 Conflicts: zorp-dev, libzorp0-dev
 Description: Development files needed to compile Zorp modules

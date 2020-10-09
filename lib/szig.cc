@@ -1425,13 +1425,12 @@ static void
 z_szig_add_zone_cnt(ZSzigServiceProps *props, ZSzigNode *related)
 {
   gchar *escaped_name = z_szig_escape_name(props->name, &escaped_name);
-  gchar buf[128];
-  g_snprintf(buf, sizeof(buf), "service.%s", escaped_name);
+  const auto node_name = std::string("service.") + escaped_name;
   g_free(escaped_name);
 
   ZSzigNode *parent;
   gint parent_ndx;
-  ZSzigNode *service = z_szig_tree_lookup(buf, TRUE, &parent, &parent_ndx);
+  ZSzigNode *service = z_szig_tree_lookup(node_name.c_str(), TRUE, &parent, &parent_ndx);
 
   /* called here so that up-to-date data is already available in the tree */
   if (service != NULL)

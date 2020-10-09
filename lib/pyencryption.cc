@@ -97,12 +97,10 @@ z_policy_encryption_set_methods_and_security(ZPolicyEncryption *self,
     {
       self->ssl_client_context = SSL_CTX_new(TLS_server_method());
 
-      SSL_CTX_set_options(self->ssl_client_context, SSL_OP_SINGLE_ECDH_USE);
-
       if (!SSL_CTX_set_min_proto_version(self->ssl_client_context, TLS1_VERSION))
         z_policy_encryption_log_set_version_error("client", "min");
 
-      if (!SSL_CTX_set_max_proto_version(self->ssl_client_context, TLS1_2_VERSION))
+      if (!SSL_CTX_set_max_proto_version(self->ssl_client_context, TLS1_3_VERSION))
         z_policy_encryption_log_set_version_error("client", "max");
 
       SSL_CTX_set_app_data(self->ssl_client_context, self);
@@ -119,12 +117,10 @@ z_policy_encryption_set_methods_and_security(ZPolicyEncryption *self,
 
       SSL_CTX_set_app_data(self->ssl_server_context, self);
 
-      SSL_CTX_set_options(self->ssl_server_context, SSL_OP_SINGLE_ECDH_USE);
-
       if (!SSL_CTX_set_min_proto_version(self->ssl_server_context, TLS1_VERSION))
         z_policy_encryption_log_set_version_error("server", "min");
 
-      if (!SSL_CTX_set_max_proto_version(self->ssl_server_context, TLS1_2_VERSION))
+      if (!SSL_CTX_set_max_proto_version(self->ssl_server_context, TLS1_3_VERSION))
         z_policy_encryption_log_set_version_error("server", "max");
 
 
@@ -184,6 +180,8 @@ z_policy_encryption_register_vars(ZPolicyEncryption *self)
                          &self->ssl_opts.disable_proto_tlsv1_1[EP_CLIENT]);
   z_policy_dict_register(dict, Z_VT_INT, "client_disable_proto_tlsv1_2", Z_VF_RW,
                          &self->ssl_opts.disable_proto_tlsv1_2[EP_CLIENT]);
+  z_policy_dict_register(dict, Z_VT_INT, "client_disable_proto_tlsv1_3", Z_VF_RW,
+                         &self->ssl_opts.disable_proto_tlsv1_3[EP_CLIENT]);
   z_policy_dict_register(dict, Z_VT_INT, "client_disable_compression", Z_VF_RW,
                          &self->ssl_opts.disable_compression[EP_CLIENT]);
 
@@ -193,6 +191,12 @@ z_policy_encryption_register_vars(ZPolicyEncryption *self)
   z_policy_dict_register(dict, Z_VT_STRING, "client_ssl_cipher",
                          Z_VF_RW | Z_VF_CONSUME,
                          self->ssl_opts.ssl_cipher[EP_CLIENT]);
+  z_policy_dict_register(dict, Z_VT_STRING, "client_ciphers_tlsv1_3",
+                         Z_VF_RW | Z_VF_CONSUME,
+                         self->ssl_opts.ciphers_tlsv1_3[EP_CLIENT]);
+  z_policy_dict_register(dict, Z_VT_STRING, "client_shared_groups",
+                         Z_VF_RW | Z_VF_CONSUME,
+                         self->ssl_opts.shared_groups[EP_CLIENT]);
   z_policy_dict_register(dict, Z_VT_INT, "cipher_server_preference", Z_VF_RW,
                          &self->ssl_opts.cipher_server_preference);
   z_policy_dict_register(dict, Z_VT_STRING, "dh_params",
@@ -201,6 +205,8 @@ z_policy_encryption_register_vars(ZPolicyEncryption *self)
   z_policy_dict_register(dict, Z_VT_STRING, "client_ca_hint_directory",
                          Z_VF_RW | Z_VF_CONSUME,
                          self->ssl_opts.ca_hint_directory);
+  z_policy_dict_register(dict, Z_VT_INT, "client_disable_send_root_ca", Z_VF_RW,
+                         &self->ssl_opts.client_disable_send_root_ca);
 
   /* server side */
   z_policy_dict_register(dict, Z_VT_HASH, "server_handshake", Z_VF_READ | Z_VF_CONSUME,
@@ -228,6 +234,8 @@ z_policy_encryption_register_vars(ZPolicyEncryption *self)
                          &self->ssl_opts.disable_proto_tlsv1_1[EP_SERVER]);
   z_policy_dict_register(dict, Z_VT_INT, "server_disable_proto_tlsv1_2", Z_VF_RW,
                          &self->ssl_opts.disable_proto_tlsv1_2[EP_SERVER]);
+  z_policy_dict_register(dict, Z_VT_INT, "server_disable_proto_tlsv1_3", Z_VF_RW,
+                         &self->ssl_opts.disable_proto_tlsv1_3[EP_SERVER]);
   z_policy_dict_register(dict, Z_VT_INT, "server_disable_compression", Z_VF_RW,
                          &self->ssl_opts.disable_compression[EP_SERVER]);
 
@@ -238,6 +246,12 @@ z_policy_encryption_register_vars(ZPolicyEncryption *self)
   z_policy_dict_register(dict, Z_VT_STRING, "server_ssl_cipher",
                          Z_VF_RW | Z_VF_CONSUME,
                          self->ssl_opts.ssl_cipher[EP_SERVER]);
+  z_policy_dict_register(dict, Z_VT_STRING, "server_ciphers_tlsv1_3",
+                         Z_VF_RW | Z_VF_CONSUME,
+                         self->ssl_opts.ciphers_tlsv1_3[EP_SERVER]);
+  z_policy_dict_register(dict, Z_VT_STRING, "server_shared_groups",
+                         Z_VF_RW | Z_VF_CONSUME,
+                         self->ssl_opts.shared_groups[EP_SERVER]);
   z_policy_dict_register(dict, Z_VT_INT, "server_check_subject", Z_VF_RW,
                          &self->ssl_opts.server_check_subject);
   z_policy_dict_register(dict, Z_VT_INT, "disable_renegotiation", Z_VF_RW,
@@ -272,15 +286,23 @@ z_policy_encryption_set_config_defaults(ZPolicyEncryption *self)
       self->ssl_opts.handshake_hash[side] = g_hash_table_new(g_str_hash, g_str_equal);
       //self->ssl_opts.ssl_cipher[side] = g_string_new("ALL:!aNULL:@STRENGTH");
       self->ssl_opts.ssl_cipher[side] = g_string_new("HIGH:!aNULL:@STRENGTH");
+      self->ssl_opts.ciphers_tlsv1_3[side] = g_string_new(
+        "TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256"
+      );
+      self->ssl_opts.shared_groups[side] = g_string_new(
+        "X25519:X448:P-521:P-384:P-256"
+      );
       self->ssl_opts.disable_proto_tlsv1[side] = FALSE;
       self->ssl_opts.disable_proto_tlsv1_1[side] = FALSE;
       self->ssl_opts.disable_proto_tlsv1_2[side] = FALSE;
+      self->ssl_opts.disable_proto_tlsv1_3[side] = TRUE;
       self->ssl_opts.keypair_generate[side] = FALSE;
       self->ssl_opts.disable_compression[side] = FALSE;
     }
 
   self->ssl_opts.cipher_server_preference = FALSE;
   self->ssl_opts.dh_params = g_string_new("");
+  self->ssl_opts.client_disable_send_root_ca = FALSE;
 
   self->ssl_opts.server_setup_key_cb = NULL;
   self->ssl_opts.server_verify_cert_cb = NULL;
@@ -366,6 +388,7 @@ z_policy_encryption_setup_ctx_options(ZPolicyEncryption *self, SSL_CTX *ctx, ZEn
                       (self->ssl_opts.disable_proto_tlsv1[side] ? SSL_OP_NO_TLSv1 : 0) |
                       (self->ssl_opts.disable_proto_tlsv1_1[side] ? SSL_OP_NO_TLSv1_1 : 0) |
                       (self->ssl_opts.disable_proto_tlsv1_2[side] ? SSL_OP_NO_TLSv1_2 : 0) |
+                      (self->ssl_opts.disable_proto_tlsv1_3[side] ? SSL_OP_NO_TLSv1_3 : 0) |
                       (self->ssl_opts.disable_compression[side] ? SSL_OP_NO_COMPRESSION : 0);
 
   SSL_CTX_set_options(ctx, options);
@@ -475,8 +498,26 @@ z_policy_encryption_setup_method(ZPolicyEncryption *self, PyObject * /* args */)
 
           Py_RETURN_FALSE;
         }
+
+      if (!SSL_CTX_set_ciphersuites(ctx, self->ssl_opts.ciphers_tlsv1_3[side]->str))
+        {
+          z_log(NULL, CORE_ERROR, 1, "Error setting TLSv1.3 cipher spec; ciphers='%s', side='%s'",
+                      self->ssl_opts.ciphers_tlsv1_3[side]->str, EP_STR(side));
+
+          Py_RETURN_FALSE;
+        }
+
+      if (!SSL_CTX_set1_groups_list(ctx, self->ssl_opts.shared_groups[side]->str))
+        {
+          z_log(NULL, CORE_ERROR, 1, "Error setting supported shared groups list; groups='%s', side='%s'",
+                      self->ssl_opts.shared_groups[side]->str, EP_STR(side));
+
+          Py_RETURN_FALSE;
+        }
+
       if (self->ssl_opts.disable_renegotiation && side == EP_CLIENT)
         SSL_CTX_set_info_callback(ctx, z_policy_encryption_info_callback);
+
 
       z_policy_encryption_setup_ctx_options(self, ctx, side);
       z_policy_encryption_setup_set_verify(self, ctx, side);

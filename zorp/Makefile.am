@@ -1,6 +1,7 @@
 AM_CXXFLAGS=@ZORP_CXXFLAGS@
 AM_LDFLAGS=@ZORP_LIBS@
 
+SUBDIRS = urlfilter
 
 sysconfdir = ${ZORP_SYSCONFDIR}
 sbin_PROGRAMS = zorp

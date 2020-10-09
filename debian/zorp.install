@@ -1,4 +1,6 @@
 etc/zorp/*.sample
 etc/zorp/dh.pem
+etc/zorp/urlfilter/whitelist/*
 usr/sbin/zorpctl
 usr/sbin/zorp
+usr/sbin/zorpblgen

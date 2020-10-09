@@ -18,6 +18,14 @@ if [ "$1" = "configure" ]; then
 
   chown -R zorp.zorp /var/lib/zorp/keybridge-cache
   chmod 0770 /var/lib/zorp/keybridge-cache
+
+  mkdir -p /var/lib/zorp/urlfilter
+  chmod 0755 /var/lib/zorp/urlfilter
+
+  # Rebuild URL filter database
+  if [ -z "$2" -a ! -e /var/lib/zorp/urlfilter/urlfilter.db ]; then
+    /usr/sbin/zorpblgen /var/lib/zorp/urlfilter/urlfilter.db /etc/zorp/urlfilter
+  fi
 fi
 
 #DEBHELPER#

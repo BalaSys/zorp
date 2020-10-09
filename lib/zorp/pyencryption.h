@@ -102,6 +102,8 @@ typedef struct _ZProxySsl {
   encryption_security_type security[EP_MAX];
 
   GString *ssl_cipher[EP_MAX];
+  GString *ciphers_tlsv1_3[EP_MAX];
+  GString *shared_groups[EP_MAX];
 
   ZPolicyObj *server_setup_key_cb, *server_verify_cert_cb;
   ZPolicyObj *client_setup_key_cb, *client_verify_cert_cb;
@@ -118,6 +120,7 @@ typedef struct _ZProxySsl {
   gboolean disable_proto_tlsv1[EP_MAX];
   gboolean disable_proto_tlsv1_1[EP_MAX];
   gboolean disable_proto_tlsv1_2[EP_MAX];
+  gboolean disable_proto_tlsv1_3[EP_MAX];
   gboolean keypair_generate[EP_MAX];
   gboolean cipher_server_preference;
   gboolean disable_compression[EP_MAX];
@@ -126,6 +129,7 @@ typedef struct _ZProxySsl {
   gboolean permit_missing_crl[EP_MAX];
   gboolean server_check_subject;
   gboolean disable_renegotiation;
+  gboolean client_disable_send_root_ca;
 
   GString *dh_params;
   GString *ca_hint_directory;

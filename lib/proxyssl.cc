@@ -511,11 +511,15 @@ z_proxy_ssl_append_local_cert_chain(ZProxy *self, const ZEndpoint side, SSL *ssl
       for (gsize i = 0; i != chain_len; ++i)
         {
           X509 *cert = z_certificate_chain_get_cert_from_chain(self->tls_opts.local_cert[side], i);
-          if (!X509_up_ref(cert))
+          if (side == EP_CLIENT && self->encryption->ssl_opts.client_disable_send_root_ca)
+            {
+              if (z_ssl_X509_is_self_signed(cert))
+                continue;
+            }
+          if (!cert)
               z_proxy_return(self, FALSE);
           if (!X509_STORE_add_cert(SSL_CTX_get_cert_store(SSL_get_SSL_CTX(ssl)), cert))
             {
-              X509_free(cert);
               unsigned long error = ERR_peek_last_error();
               if (ERR_GET_LIB(error) == ERR_LIB_X509 &&
                   ERR_GET_REASON(error) == X509_R_CERT_ALREADY_IN_HASH_TABLE)

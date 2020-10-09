@@ -1090,9 +1090,9 @@ from Plug import PlugProxy
 from Proxy import Proxy, proxyLog
 from Matcher import getMatcher
 
-HTTP_URL_ACCEPT = 1
-HTTP_URL_REJECT = 3
-HTTP_URL_REDIRECT = 106
+HTTP_URL_REJECT = 1
+HTTP_URL_REDIRECT = 2
+HTTP_URL_ACCEPT = 3
 
 HTTP_REQ_ACCEPT = 1
 HTTP_REQ_DENY = 2
@@ -2451,8 +2451,8 @@ class AbstractHttpProxy(Proxy):
             <read/>
           </runtime>
           <description>
-            Enables URL filtering in HTTP requests. <phrase condition="zorp">See <xref linkend="zorp_http_urlfiltering"/> for details. Note that URL filtering requires the <parameter>url-filter</parameter> license option.</phrase>
-            <para condition="zorp-gpl"><emphasis role="bold">Warning!</emphasis> This option is available only in the commercial version of Zorp.</para>
+            Enables URL filtering in HTTP requests.
+            See <xref linkend="zorp_http_urlfiltering"/> for details.
           </description>
         </attribute>
         <attribute>
@@ -2469,8 +2469,9 @@ class AbstractHttpProxy(Proxy):
             <read/>
           </runtime>
           <description>
-            Enables DNS- and reverse-DNS resolution to ensure that a domain or URL is correctly categorized even when it is listed in the database using its domain name, but the client tries to access it with its IP address (or vice-versa). <phrase condition="zorp">See <xref linkend="zorp_http_urlfiltering"/> for details. Note that URL filtering requires the <parameter>url-filter</parameter> license option.</phrase>
-            <para condition="zorp-gpl"><emphasis role="bold">Warning!</emphasis> This option is available only in the commercial version of Zorp.</para>
+            Enables DNS- and reverse-DNS resolution to ensure that a domain or URL is correctly categorized even
+            when it is listed in the database using its domain name, but the client tries to access it with its IP address (or vice-versa).
+            See <xref linkend="zorp_http_urlfiltering"/> for details.
           </description>
         </attribute>
         <attribute>
@@ -2478,7 +2479,7 @@ class AbstractHttpProxy(Proxy):
           <type>
             <hash>
               <key>
-                <string display_name="Category identifier"/>
+                <urlcategory display_name="Category identifier"/>
               </key>
               <value>
                 <link id="action.http.url"/>
@@ -2497,8 +2498,6 @@ class AbstractHttpProxy(Proxy):
           <description>
             Normative policy hash for category-based URL-filtering.
             The hash is indexed by the name of the category.
-            <phrase condition="zorp">See also <xref linkend="zorp_http_urlfiltering_categories"/>.</phrase>
-            <para condition="zorp-gpl"><emphasis role="bold">Warning!</emphasis> This option is available only in the commercial version of Zorp.</para>
           </description>
         </attribute>
         <attribute>
@@ -2516,9 +2515,14 @@ class AbstractHttpProxy(Proxy):
             <write/>
           </runtime>
           <description>
-            <para>The action applied to uncategorized (unknown) URLs when URL filtering is used. By default, uncategorized URLs are accepted: <parameter>self.url_filter_uncategorized_action=(HTTP_URL_ACCEPT,)</parameter>. Note that if you set this option to <parameter>HTTP_URL_REJECT</parameter>, you must add every URL on your intranet to a category and set an <parameter>HTTP_URL_ACCEPT</parameter> rule to this category, otherwise your clients will not able to access your intranet sites. <phrase condition="zorp">For details, see <xref linkend="zorp_http_urlfiltering_configuring"/>.</phrase></para>
-            <para>Available only in Zorp version 3.4.5 and later.</para>
-            <para condition="zorp-gpl"><emphasis role="bold">Warning!</emphasis> This option is available only in the commercial version of Zorp.</para>
+            <para>
+              The action applied to uncategorized (unknown) URLs when URL filtering is used.
+              By default, uncategorized URLs are accepted: <parameter>self.url_filter_uncategorized_action=(HTTP_URL_ACCEPT,)</parameter>.
+              Note that if you set this option to <parameter>HTTP_URL_REJECT</parameter>,
+              you must add every URL on your intranet to a category and set an <parameter>HTTP_URL_ACCEPT</parameter> rule to this category,
+              otherwise your clients will not able to access your intranet sites.
+              For details, see <xref linkend="zorp_http_urlfiltering_configuring"/>.
+            </para>
           </description>
         </attribute>
         <attribute>
@@ -3032,3 +3036,76 @@ class NontransHttpWebdavProxy(HttpProxyNonTransparent):
         self.request["MOVE"] = (HTTP_REQ_ACCEPT)
         self.request["LOCK"] = (HTTP_REQ_ACCEPT)
         self.request["UNLOCK"] = (HTTP_REQ_ACCEPT)
+
+
+
+
+class HttpProxyURLCategoryFilter(HttpProxy):
+
+    """
+    <class maturity="stable">
+      <summary>
+        HTTP proxy based on HttpProxy, with URL filtering capability based on categories.
+      </summary>
+      <description>
+        <para>
+          HTTP proxy based on HttpProxy with enabled URL filtering (with DNS and reverse-DNS resolution)
+          and preconfigured default category actions.
+        </para>
+        <para>
+          The following categories have policy action <parameter>HTTP_URL_REJECT</parameter>:
+        </para>
+        <itemizedlist>
+          <listitem><para>ads</para></listitem>
+          <listitem><para>adult</para></listitem>
+          <listitem><para>blacklist</para></listitem>
+          <listitem><para>drugs</para></listitem>
+          <listitem><para>gambling</para></listitem>
+          <listitem><para>hacking</para></listitem>
+          <listitem><para>phishing</para></listitem>
+          <listitem><para>porn</para></listitem>
+          <listitem><para>sexuality</para></listitem>
+          <listitem><para>spyware</para></listitem>
+          <listitem><para>violence</para></listitem>
+          <listitem><para>virusinfected</para></listitem>
+          <listitem><para>warez</para></listitem>
+        </itemizedlist>
+        <para>
+          The following categories have policy action <parameter>HTTP_URL_ACCEPT</parameter>:
+        </para>
+        <itemizedlist>
+          <listitem><para>whitelist</para></listitem>
+        </itemizedlist>
+      </description>
+      <metainfo>
+        <attributes/>
+      </metainfo>
+    </class>
+    """
+
+    def config(self):
+        """
+        <method internal="yes"/>
+        """
+
+        HttpProxy.config(self)
+
+        self.enable_url_filter = TRUE
+        self.enable_url_filter_dns = TRUE
+
+        self.url_category['blacklist'] = HTTP_URL_REJECT
+        self.url_category['whitelist'] = HTTP_URL_ACCEPT
+
+        self.url_category['ads'] = HTTP_URL_REJECT
+        self.url_category['adult'] = HTTP_URL_REJECT
+        self.url_category['blacklist'] = HTTP_URL_REJECT
+        self.url_category['drugs'] = HTTP_URL_REJECT
+        self.url_category['gambling'] = HTTP_URL_REJECT
+        self.url_category['hacking'] = HTTP_URL_REJECT
+        self.url_category['phishing'] = HTTP_URL_REJECT
+        self.url_category['porn'] = HTTP_URL_REJECT
+        self.url_category['sexuality'] = HTTP_URL_REJECT
+        self.url_category['spyware'] = HTTP_URL_REJECT
+        self.url_category['violence'] = HTTP_URL_REJECT
+        self.url_category['virusinfected'] = HTTP_URL_REJECT
+        self.url_category['warez'] = HTTP_URL_REJECT

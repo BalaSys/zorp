@@ -203,7 +203,7 @@ z_py_ssl_certificate_chain_set_chain(ZCertificateChain *chain, gchar *input, gsi
 
       if (!z_certificate_chain_add_cert_to_chain(chain, cert.get()))
         {
-          PyErr_SetString(PyExc_RuntimeError, "X509_up_ref failed.");
+          PyErr_SetString(PyExc_RuntimeError, "Failed to add cert to cert chain.");
           return FALSE;
         }
 

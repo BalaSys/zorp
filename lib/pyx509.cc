@@ -123,13 +123,11 @@ z_py_zorp_certificate_getattr(PyObject *o, char *name)
     }
   else if (strcmp(name, "serial") == 0)
     {
-      ASN1_INTEGER *cert_serial;
-
-      cert_serial = X509_get_serialNumber(self->cert);
-      if (cert_serial)
-        {
-          res = PyInt_FromLong(ASN1_INTEGER_get(cert_serial));
-        }
+      BIGNUM *serial_bn = ASN1_INTEGER_to_BN(X509_get_serialNumber(self->cert), NULL);
+      char *serial_string = BN_bn2hex(serial_bn);
+      res = PyInt_FromString(serial_string, nullptr, 16);
+      OPENSSL_free(serial_string);
+      BN_free(serial_bn);
     }
   else
     {

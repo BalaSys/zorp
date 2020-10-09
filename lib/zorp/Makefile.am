@@ -38,6 +38,7 @@ ZORP_H = \
 	sessionid.h \
 	tpsocket.h \
 	szig.h \
+	urlfilter.h \
 	x509lookup_crl_reloader.h \
 	zorp.h \
 	zorpconfig.h \
@@ -48,6 +49,9 @@ ZORP_H += \
 	kzorp.h kzorp-kernel.h
 endif
 
+
+ZORP_H += \
+	urlfilter_blacklist.h
 
 pkgincludedir=$(includedir)/zorp
 pkginclude_HEADERS = $(ZORP_H)

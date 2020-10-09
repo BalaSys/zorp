@@ -25,11 +25,12 @@ GLIB_MIN_VERSION="2.32.0"
 ZORPLL_MIN_VERSION="7.0.1.0"
 ZORPLIC_MIN_VERSION="7.0.1.0"
 ZORPMISC_MIN_VERSION="7.0.1.0"
-OPENSSL_MIN_VERSION=1.1.0
+OPENSSL_MIN_VERSION=1.1.1
 OPENSSL_MAX_VERSION=1.1.2
 PYTHON_MIN_VERSION="2.7"
 PYTHON_MAX_VERSION="2.8"
 m4_define_default([_AM_PYTHON_INTERPRETER_LIST], [python2.7])
+
 
 dnl ***************************************************************************
 dnl Initial setup
@@ -222,6 +223,7 @@ PKG_CHECK_MODULES(PYTHON, python-2.7 < $PYTHON_MAX_VERSION,,
 
 
 
+
 AM_CONDITIONAL(ENABLE_KZORP, test x$enable_kzorp = xyes)
 
 if test "x$ac_cv_func_gethostbyname_r" = "xyes"; then
@@ -271,6 +273,7 @@ ZORP_LIBDIR="${libdir}/zorp"
 ZORP_SBINDIR="${sbindir}"
 ZORP_STATEDIR="${localstatedir}/lib/zorp"
 ZORP_PIDFILEDIR="${localstatedir}/run/zorp/"
+LIBDIR="${libdir}"
 
 dnl ***************************************************************************
 dnl Export results
@@ -308,7 +311,7 @@ AC_DEFINE_UNQUOTED(ENABLE_PREFORK, `enable_value $enable_prefork`, [Enable prefo
 AC_DEFINE_UNQUOTED(ENABLE_KZORP, `enable_value $enable_kzorp`, [Enable kzorp support])
 
 WARNING_CXXFLAGS="-Wall -W -Werror-implicit-function-declaration -Wwrite-strings"
-DIRECTORY_CXXFLAGS="-DZORP_PIDFILEDIR=\\\"${ZORP_PIDFILEDIR}\\\" -DZORP_STATEDIR=\\\"${ZORP_STATEDIR}\\\" -DZORP_SBINDIR=\\\"${ZORP_SBINDIR}\\\" -DZORP_SYSCONFDIR=\\\"${ZORP_SYSCONFDIR}\\\" -DZORP_DATADIR=\\\"${ZORP_DATADIR}\\\" -DZORP_LIBDIR=\\\"${ZORP_LIBDIR}\\\""
+DIRECTORY_CXXFLAGS="-DZORP_PIDFILEDIR=\\\"${ZORP_PIDFILEDIR}\\\" -DZORP_STATEDIR=\\\"${ZORP_STATEDIR}\\\" -DZORP_SBINDIR=\\\"${ZORP_SBINDIR}\\\" -DZORP_SYSCONFDIR=\\\"${ZORP_SYSCONFDIR}\\\" -DZORP_DATADIR=\\\"${ZORP_DATADIR}\\\" -DZORP_LIBDIR=\\\"${ZORP_LIBDIR}\\\" -DLIBDIR=\\\"${LIBDIR}\\\""
 
 if test "x$enable_coverage" = "xyes"; then
         COVERAGE_CXXFLAGS="-fprofile-arcs -ftest-coverage"
@@ -399,7 +402,6 @@ AC_SUBST(CURRDATE)
 
 AC_CONFIG_LINKS([pylib/Zorp/__init__.py:pylib/Zorp/__init__.py])
 
-
 AC_CONFIG_FILES([
 Makefile
 debian/Makefile
@@ -472,6 +474,8 @@ tests/tools/Makefile
 tests/unit/Makefile
 tests/zorpctl/Makefile
 zorp/Makefile
+zorp/urlfilter/Makefile
+zorpblgen/Makefile
 zorpctl/Makefile],
 [chmod +x debian/rules]
 )

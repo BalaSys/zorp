@@ -57,6 +57,17 @@
 #define HTTP_VIOLATION "http.violation"
 #define HTTP_ACCOUNTING "http.accounting"
 
+/* url filtering verdicts
+ *
+ * order matters: the numbers reflect the priority during the filtering decision
+ * a REJECT verdict should always override a REDIRECT or an ACCEPT verdict
+ */
+typedef enum _HttpUrlVerdict
+{
+  HTTP_URL_REJECT = 1,
+  HTTP_URL_REDIRECT = 2,
+  HTTP_URL_ACCEPT = 3,
+} HttpUrlVerdict;
 
 /* request specific constants */
 typedef enum _HttpRequestVerdict
@@ -167,6 +178,7 @@ typedef enum _HttpMessageCode
   HTTP_MSG_BAD_CONTENT      = 11,
   HTTP_MSG_FTP_ERROR        = 12,
   HTTP_MSG_REDIRECT         = 13,
+  HTTP_MSG_INTERNAL         = 14
 } HttpMessageCode;
 
 /* protocol to pull data on the server side */
@@ -501,6 +513,17 @@ struct _HttpProxy
   /* Update the auth cache stamp at each request */
   gboolean auth_cache_update;
 
+  /* Enable the radix-tree based url filter/classifier */
+  gboolean enable_url_filter;
+
+  /* Do additional IP->domain and domain->IP lookups for url classification */
+  gboolean enable_url_filter_dns;
+
+  /* Default verdict for URL filter if no matching categories were found */
+  ZPolicyObj *url_filter_uncategorized_action;
+
+  /* policy hash to process on url categories */
+  GHashTable *url_category;
 
   /* Categories the request falls into */
   ZPolicyObj *request_categories;
@@ -595,7 +618,6 @@ extern GHashTable *request_proto_hash;
 extern GHashTable *response_proto_hash;
 extern GHashTable *request_hdr_proto_hash;
 extern GHashTable *response_hdr_proto_hash;
-
 
 static inline guint
 http_proto_lookup_hash(GHashTable *hash, const gchar *index)

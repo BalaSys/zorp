@@ -43,6 +43,7 @@
 #define TICKS_PER_1_MIN (60 / TICK_TIME)
 #define TICKS_PER_5_MIN (300 / TICK_TIME)
 #define TICKS_PER_15_MIN (900 / TICK_TIME)
+constexpr int LONG_NAME_LENGTH = 300;
 
 static gint
 init_szig(void)
@@ -254,6 +255,42 @@ check_thread_rates(glong avg1, glong avg5, glong avg15)
   return failed;
 }
 
+static int
+check_service_nodes_exists(void)
+{
+  std::string service_name;
+  service_name.reserve(LONG_NAME_LENGTH);
+  for (int i = 0; i < LONG_NAME_LENGTH; ++i)
+    service_name += ('a' + (i % ('z'-'a'+1)));
+
+  z_szig_event(Z_SZIG_SERVICE_COUNT,
+               z_szig_value_new_props(service_name.c_str(),
+                                      "session_number", z_szig_value_new_long(1),
+                                      "sessions_running", z_szig_value_new_long(0),
+                                      NULL));
+
+  z_szig_event(Z_SZIG_CONNECTION_PROPS,
+               z_szig_value_new_connection_props(service_name.c_str(), 0, 0, 0,
+                                                 "client_zone", "czone",
+                                                 "server_zone", "szone",
+                                                 NULL));
+
+  z_szig_event(Z_SZIG_CONNECTION_STOP,
+               z_szig_value_new_connection_props(service_name.c_str(), 0, 0, 0, NULL));
+
+  sleep(1);
+
+  service_name.insert(0, "service.").append(".");
+  const std::string items[] = {"sessions_max", "sessions_running", "session_number",
+                               "inbound_zones", "outbound_zones"};
+  for (const auto &item : items)
+    {
+      if (!z_szig_tree_lookup((service_name + item).c_str(), FALSE, NULL, NULL)) return 1;
+    }
+
+  return 0;
+}
+
 BOOST_AUTO_TEST_CASE(test_szig)
 {
   BOOST_CHECK(!init_szig());
@@ -269,6 +306,9 @@ BOOST_AUTO_TEST_CASE(test_szig)
    * difficult, so we generate two thread stop events here */
   z_szig_event(Z_SZIG_THREAD_STOP, NULL);
   z_szig_event(Z_SZIG_THREAD_STOP, NULL);
+
+  fprintf(stdout, "checking service nodes exists\n");
+  BOOST_CHECK(!check_service_nodes_exists());
 
 
   fprintf(stdout, "checking connection rate statistics\n");

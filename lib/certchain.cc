@@ -45,7 +45,9 @@ z_certificate_chain_set_cert(ZCertificateChain *self, X509 *cert)
 int
 z_certificate_chain_add_cert_to_chain(ZCertificateChain *self, X509 *cert)
 {
-  sk_X509_push(self->chain, cert);
+  if (!sk_X509_push(self->chain, cert))
+    return 0;
+
   return X509_up_ref(cert);
 }
 

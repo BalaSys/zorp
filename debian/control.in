@@ -3,9 +3,7 @@ Section: net
 Priority: optional
 Maintainer: BalaSys Development Team <devel@balasys.hu>
 Standards-Version: 3.9.0
-Build-Conflicts: g++ (< 8.3)
 Build-Depends:
-    g++ (>= 8.3) | g++-8 | g++-9 | clang-8 | clang-9,
     autoconf,
     autoconf-archive,
     automake,

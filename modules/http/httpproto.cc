@@ -26,6 +26,8 @@
 
 #include <string.h>
 
+#include "http_url_filter.h"
+
 static HttpElementInfo request_proto_table[] =
   {
     { "HEAD", HTTP_REQ_FLG_HEAD, -1 },
@@ -877,7 +879,6 @@ GHashTable *request_proto_hash;
 GHashTable *response_proto_hash;
 GHashTable *request_hdr_proto_hash;
 GHashTable *response_hdr_proto_hash;
-gboolean has_url_filter_license;
 
 static GHashTable *
 http_proto_fill_hash(HttpElementInfo *table, gboolean casesens)
