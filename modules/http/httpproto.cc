@@ -26,7 +26,7 @@
 
 #include <string.h>
 
-#include "http_url_filter.h"
+#include "httpurlfilter.h"
 
 static HttpElementInfo request_proto_table[] =
   {

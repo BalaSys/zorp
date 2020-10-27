@@ -27,13 +27,22 @@
 #include <string>
 #include <string_view>
 
-enum HttpUrlCategoryTag
+#include <zorpll/zmap.h>
+
+using namespace std::literals;
+
+enum class HttpUrlCategoryTag
 {
-  CATEGORY_FOR_URL,
-  CATEGORY_FOR_IP,
-  CATEGORY_FOR_REVERSE_HOSTNAME,
-  CATEGORY_NUM
+  URL,
+  IP,
+  REVERSE_HOSTNAME,
 };
+
+static constexpr auto httpurlcategorytag_strings = make_z_map(
+  std::make_pair(HttpUrlCategoryTag::URL,              "URL"sv),
+  std::make_pair(HttpUrlCategoryTag::IP,               "IP address of server"sv),
+  std::make_pair(HttpUrlCategoryTag::REVERSE_HOSTNAME, "reverse lookup for the IP address of server"sv)
+);
 
 class UrlFilter
 {
@@ -46,11 +55,12 @@ public:
     unsigned num_categories = 0;
   };
 
-  UrlFilter();
-  virtual ~UrlFilter();
+  UrlFilter() = default;
+  virtual ~UrlFilter() = default;
 
   virtual Result lookup_url(std::string_view url) = 0;
-  bool is_initialized() { return initialized; }
+
+  bool is_initialized() const;
 
 protected:
   bool initialized = false;

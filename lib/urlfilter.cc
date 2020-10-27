@@ -22,10 +22,8 @@
 
 #include <zorp/urlfilter.h>
 
-UrlFilter::UrlFilter()
+bool
+UrlFilter::is_initialized() const
 {
-}
-
-UrlFilter::~UrlFilter()
-{
+  return initialized;
 }

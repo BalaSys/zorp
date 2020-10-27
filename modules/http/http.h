@@ -57,17 +57,17 @@
 #define HTTP_VIOLATION "http.violation"
 #define HTTP_ACCOUNTING "http.accounting"
 
-/* url filtering verdicts
- *
- * order matters: the numbers reflect the priority during the filtering decision
- * a REJECT verdict should always override a REDIRECT or an ACCEPT verdict
- */
-typedef enum _HttpUrlVerdict
+// URL filtering verdicts
+// The order reflects the priority during the filtering decision.
+// A REJECT verdict should always override a REDIRECT or an ACCEPT verdict
+enum class HttpUrlVerdict
 {
-  HTTP_URL_REJECT = 1,
-  HTTP_URL_REDIRECT = 2,
-  HTTP_URL_ACCEPT = 3,
-} HttpUrlVerdict;
+  REJECT = 1,
+  REDIRECT,
+  ACCEPT,
+  FIRST = REJECT,
+  LAST = ACCEPT
+};
 
 /* request specific constants */
 typedef enum _HttpRequestVerdict

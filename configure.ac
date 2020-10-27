@@ -425,9 +425,9 @@ debian/zorp${PACKAGE_SUFFIX}-munin-plugins.install:debian/zorp-munin-plugins.ins
 debian/zorp${PACKAGE_SUFFIX}-munin-plugins.links:debian/zorp-munin-plugins.links.in
 debian/zorp${PACKAGE_SUFFIX}-nagios-plugins.install:debian/zorp-nagios-plugins.install.in
 debian/zorp${PACKAGE_SUFFIX}.docs:debian/zorp.docs.in
+debian/zorp${PACKAGE_SUFFIX}.manpages:debian/zorp.manpages.in
 debian/zorp${PACKAGE_SUFFIX}.service:debian/zorp.service.in
 debian/zorp${PACKAGE_SUFFIX}@.service:debian/zorp@.service.in
-debian/zorp${PACKAGE_SUFFIX}.manpages:debian/zorp.manpages.in
 debian/source/Makefile
 doc/Makefile
 doc/man/Makefile

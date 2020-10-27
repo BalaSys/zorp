@@ -47,7 +47,7 @@
 #include <functional>
 #include <algorithm>
 
-#include "http_url_filter.h"
+#include "httpurlfilter.h"
 
 static GHashTable *auth_hash = NULL;
 G_LOCK_DEFINE_STATIC(auth_mutex);
@@ -204,7 +204,7 @@ http_config_set_defaults(HttpProxy *self)
   self->enable_url_filter_dns = FALSE;
 
   z_policy_lock(self->super.thread);
-  self->url_filter_uncategorized_action = z_policy_var_build("(I)", HTTP_URL_ACCEPT);
+  self->url_filter_uncategorized_action = z_policy_var_build("(I)", HttpUrlVerdict::ACCEPT);
   z_policy_unlock(self->super.thread);
 
   self->url_category = g_hash_table_new(g_str_hash, g_str_equal);
@@ -2425,7 +2425,7 @@ http_process_request(HttpProxy *self)
       z_proxy_return(self, FALSE);
     }
 
-  if (!http_url_filter(self, self->request_url->str, self->request_url_parts))
+  if (!HttpUrlFilter::get_instance().filter_url(self, self->request_url->str, self->request_url_parts))
     return false;
 
   self->remote_port = self->request_url_parts.port;
@@ -3458,7 +3458,7 @@ http_handle_connect(HttpProxy *self)
   http_init_url(&url_parts);
   g_string_assign_len(url_parts.host, remote_host, remote_host_len);
   url_parts.port = remote_port;
-  if (!http_url_filter(self, self->request_url->str, url_parts))
+  if (!HttpUrlFilter::get_instance().filter_url(self, self->request_url->str, url_parts))
     {
       http_destroy_url(&url_parts);
       return false;
@@ -3965,7 +3965,7 @@ zorp_module_init(void)
 {
   http_proto_init();
 
-  http_url_filter_init();
+  HttpUrlFilter::get_instance().init_backend();
 
   auth_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, http_auth_destroy);
   z_registry_add("http", ZR_PROXY, &http_module_funcs);

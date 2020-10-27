@@ -1052,7 +1052,7 @@ def instance():
         </args>
         <description>
           <para>
-            Reject the request. The error code and reason for the rejection can be specified in the optional second and third arguments. See <xref linkend="zorp_http_urlfiltering_configuring"/> for details.
+            Reject the request. The error code and reason for the rejection are specified in the second and third arguments. See <xref linkend="zorp_http_urlfiltering_configuring"/> for details.
           </para>
         </description>
       </tuple>
