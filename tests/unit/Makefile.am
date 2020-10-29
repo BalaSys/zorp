@@ -7,7 +7,7 @@ check_PROGRAMS = \
 	test_pystruct \
 	test_szig
 
-check_SCRIPTS = test_detector.py test_logger.py test_subnet.py
+check_SCRIPTS = test_detector.py test_logger.py test_subnet.py test_resolvercache.py
 
 test_dhparam_SOURCES = test_dhparam.cc
 test_pystruct_SOURCES = test_pystruct.cc

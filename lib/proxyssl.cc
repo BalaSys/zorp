@@ -716,7 +716,6 @@ z_proxy_ssl_verify_peer_cert_cb(int preverify_ok, X509_STORE_CTX *ctx)
       if (self->encryption->ssl_opts.permit_missing_crl[side])
         {
           z_proxy_log(self, CORE_POLICY, 5, "Trying verification without CRL check as directed by the policy");
-          self->tls_opts.certificate_trusted[side] = false;
           return 1;
         }
     }

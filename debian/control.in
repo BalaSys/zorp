@@ -33,6 +33,7 @@ Depends:
     python-enum34,
     python-openssl,
     python-zorp-base (>= ${source:Version})
+Conflicts: zorp (<< @VERSION_MAJOR@), zorp (>> @NEXT_VERSION_MAJOR@)
 Suggests:
     iptables-kzorp-addon,
     iptables-zorp-addons,
@@ -91,6 +92,7 @@ Package: zorp-modules
 Section: net
 Architecture: any
 Depends: ${shlibs:Depends}, ${python:Depends}, ${misc:Depends}
+Conflicts: zorp-modules (<< @VERSION_MAJOR@), zorp-modules (>> @NEXT_VERSION_MAJOR@)
 Recommends: zorp (= ${binary:Version})
 Description: Default proxy modules for Zorp
  Zorp is a new generation firewall. It is essentially a transparent proxy
@@ -106,6 +108,7 @@ Package: zorp-doc
 Section: doc
 Architecture: all
 Depends: ${misc:Depends}
+Conflicts: zorp-doc (<< @VERSION_MAJOR@), zorp-doc (>> @NEXT_VERSION_MAJOR@)
 Description: Zorp documentation
  Zorp is a new generation firewall. It is essentially a transparent proxy
  firewall, with strict protocol analyzing proxies, a modular architecture,
@@ -122,6 +125,7 @@ Depends:
     python-dnspython,
     python-netaddr,
     python-radix
+Conflicts: python-zorp-base (<< @VERSION_MAJOR@), python-zorp-base (>> @NEXT_VERSION_MAJOR@)
 Description: Python bindings for kzorp.
  Zorp is a new generation firewall. It is essentially a transparent proxy
  firewall, with strict protocol analyzing proxies, a modular architecture,
@@ -131,6 +135,7 @@ Description: Python bindings for kzorp.
 
 Package: zorp-base
 Architecture: all
+Conflicts: zorp-base (<< @VERSION_MAJOR@), zorp-base (>> @NEXT_VERSION_MAJOR@)
 Description: Base files for zorp
  Zorp is a new generation firewall. It is essentially a transparent proxy
  firewall, with strict protocol analyzing proxies, a modular architecture,
@@ -141,6 +146,7 @@ Description: Base files for zorp
 Package: zorp-munin-plugins
 Architecture: any
 Depends: munin-node, zorp
+Conflicts: zorp-munin-plugins (<< @VERSION_MAJOR@), zorp-munin-plugins (>> @NEXT_VERSION_MAJOR@)
 Description: An advanced protocol analyzing firewall
  Zorp is a new generation firewall. It is essentially a transparent proxy
  firewall, with strict protocol analyzing proxies, a modular architecture,
@@ -151,6 +157,7 @@ Description: An advanced protocol analyzing firewall
 
 Package: zorp-nagios-plugins
 Architecture: any
+Conflicts: zorp-nagios-plugins (<< @VERSION_MAJOR@), zorp-nagios-plugins (>> @NEXT_VERSION_MAJOR@)
 Suggests: zorp, nagios-nrpe-server, zms-transfer-agent-dynamic
 Description: An advanced protocol analyzing firewall
  Zorp is a new generation firewall. It is essentially a transparent proxy

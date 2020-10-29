@@ -207,12 +207,13 @@ z_setup_signals(void)
 void
 z_version(void)
 {
-  printf("Zorp %s (%s)\n"
+  printf("%s %s (%s)\n"
          "Config-Date: %s\n"
          "Trace: %s\n"
          "IPOptions: %s\n\n"
          "%s\n"
          ,
+         GATEWAY_PRODUCT_NAME,
          BROCHURE_VERSION, VERSION,
          ZORP_CONFIG_DATE,
          ON_OFF_STR(ENABLE_TRACE),

@@ -1025,11 +1025,16 @@ http_error_message(HttpProxy *self, gint response_code, guint message_code, GStr
       if (http_write(self, EP_CLIENT, self->headers[EP_SERVER].flat->str, self->headers[EP_SERVER].flat->len) != G_IO_STATUS_NORMAL)
         z_proxy_return(self, FALSE);
     }
+  else if (message_code == HTTP_MSG_CLIENT_TIMEOUT)
+    {
+      z_proxy_log(self, HTTP_DEBUG, 6, "Client has timed out, would serve error file, but silent mode is always enabled for this case;");
+      return false;
+    }
 
   if ((self->request_flags & HTTP_REQ_FLG_HEAD))
     z_proxy_return(self, TRUE); /* we are responding to a HEAD request, do not return a body */
 
-  std::string filename = http_error_file_path(self, messages[message_code]);
+  const std::string filename = http_error_file_path(self, messages[message_code]);
 
   if (self->error_silent)
     {

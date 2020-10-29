@@ -1,8 +1,5 @@
 /* lib/zorp/zorpconfig.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Zorp brochure version */
-#undef BROCHURE_VERSION
-
 /* Enable IP option processing */
 #undef ENABLE_IPOPTIONS
 
