@@ -8,8 +8,8 @@ Mailing lists
 -------------
 
 -   Subscribe to the lists directly in
-    [English](https://lists.balabit.hu/mailman/listinfo/zorp) or
-    [Hungarian](https://lists.balabit.hu/mailman/listinfo/zorp)
+    [English](https://groups.google.com/g/zorp) or
+    [Hungarian](https://groups.google.com/g/zorp-hu)
 -   List archives are available at the above URLs
 
 Documentation
