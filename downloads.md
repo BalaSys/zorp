@@ -23,6 +23,4 @@ Binaries
 Evaluate
 --------
 
-There is a set of [virtual
-machines](http://people.balabit.hu/szilard/zorp-gpl/virtual-machines/)
-to test *Zorp GPL*.
+There is a set of [virtual machines](http://people.balasys.hu/coroner/zorp-gpl/virtual-machines/) to test *Zorp GPL*.
